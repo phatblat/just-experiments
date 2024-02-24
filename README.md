@@ -1,3 +1,6 @@
+# 🦾 `just` Experiments
+
+Playing around with [`just`](https://just.systems/).
 
 ## 📄 License
 

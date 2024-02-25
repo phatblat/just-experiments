@@ -32,10 +32,6 @@ jobs:
           ls -l $(command -v mise)
           eval "$(mise hook-env --shell=bash)"
           mise doctor
-          if [[ ! -x "mise" ]]; then
-            echo "mise is not executable!"
-            return 1
-          fi
           echo 'eval "$(mise hook-env --shell=bash)"' >> ~/.bashrc
       - name: 📲 Install `just`
         run: |

@@ -22,10 +22,11 @@ jobs:
     steps:
       - name: 📲 Install `mise`
         run: |
-          echo "PATH: $PATH"
+          brew update --verbose
           if [[ ! -x "$(command -v mise)" ]]; then
             brew install mise
           fi
+          echo "PATH: $PATH"
           which mise
           command -v mise
           eval "$(mise hook-env --shell=bash)"

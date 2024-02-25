@@ -13,5 +13,9 @@ lint:
     @just --unstable --fmt --check
 
 # build
-build project=all-projects:
-    @echo Building {{ project }}
+build projects=all-projects:
+    #!/usr/bin/env bash
+    for project in {{ projects }}; do
+        echo Building $project
+        just ${project}/build
+    done

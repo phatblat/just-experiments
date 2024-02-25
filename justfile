@@ -8,11 +8,17 @@ all-projects := `ls -d */`
 list:
     @just --list
 
-# lint
+# show var values
+vars:
+    @just --evaluate
+
+# lint justfile
 lint:
     @just --unstable --fmt --check
 
 # format justfile
+# ---------------------------------------------------------------------------- #
+
 format:
     @just --unstable --fmt
 
@@ -25,7 +31,3 @@ build projects=all-projects:
         echo Building $project
         just ${project}/build
     done
-# shows var values
-vars:
-    @just --evaluate
-

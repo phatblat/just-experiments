@@ -25,9 +25,9 @@ jobs:
           if [[ ! -x "$(command -v mise)" ]]; then
             curl --no-progress-meter https://mise.jdx.dev/install.sh | sh
           fi
-          command -v mise
           ls -l ~/.local/bin/mise
           export PATH="~.local/bin:$PATH";
+          command -v mise
           eval "$(mise hook-env --shell=bash)"
           mise doctor
           if [[ ! -x "~/.local/bin/mise" ]]; then

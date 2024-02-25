@@ -14,8 +14,11 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  build-test:
+  lint:
     runs-on: macos-14
+    defaults:
+      run:
+        shell: bash
     steps:
       - name: 📲 Install Tools
         run: |
@@ -25,6 +28,7 @@ jobs:
           mise settings set experimental true
           mise install --verbose
           mise list --verbose
+          echo 'eval "$(mise activate bash)"' >> ~/.bashrc
       - uses: actions/checkout@v4
       - name: 🚨 Lint
         run: just lint

@@ -41,5 +41,7 @@ jobs:
           mise settings set experimental true
           mise install --verbose
           mise list --verbose
+      - name: 🤔 Evaluate Variables
+        run: just vars
       - name: 🚨 Lint
         run: just lint

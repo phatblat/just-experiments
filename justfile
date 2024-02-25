@@ -5,3 +5,7 @@
 # initial recipe
 default:
     echo 'Hello, world!'
+
+# lint
+lint:
+    just --unstable --fmt --check

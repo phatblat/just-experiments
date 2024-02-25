@@ -1,0 +1,30 @@
+#
+# .github/workflows/pr-checks.yml
+#
+# https://docs.github.com/en/actions/reference/environment-variables#default-environment-variables
+---
+name: pr-checks
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+# https://docs.github.com/en/actions/using-jobs/using-concurrency
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build-test:
+    runs-on: macos-14
+    steps:
+      - name: 📲 Install Tools
+        run: |
+          if [[ ! -x "$(command -v mise)" ]]; then
+            brew install mise
+          fi
+          mise settings set experimental true
+          mise install --verbose
+          mise list --verbose
+      - uses: actions/checkout@v4
+      - name: 🚨 Lint
+        run: just lint

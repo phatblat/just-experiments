@@ -1,0 +1,7 @@
+--action-offline-mode
+--container-architecture linux/amd64
+--platform macos-14=-self-hosted
+--pull=false
+--remote-name phatblat
+--reuse
+--secret-file .secrets

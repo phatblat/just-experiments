@@ -20,25 +20,20 @@ jobs:
       run:
         shell: bash
     steps:
-      - name: 📲 Install Tools
+      - name: 📲 Install `mise`
         run: |
-          which mise
           if [[ ! -x "$(command -v mise)" ]]; then
             curl --no-progress-meter https://mise.jdx.dev/install.sh | sh
           fi
-          which mise
-          # MISE is installed to ~/.local/bin/mise
           if [[ ! -x "~/.local/bin/mise" ]]; then
             echo "~/.local/bin/mise is not executable!"
             return 1
           fi
           echo 'export PATH="~.local/bin:$PATH";' >> ~/.bashrc
-          # hook-env command primes non-interactive shells
           echo 'eval "$(mise hook-env --shell=bash)"' >> ~/.bashrc
-          # echo "eval \"\$(mise activate bash)\"" >> ~/.bashrc
-          source ~/.bashrc
+      - name: 📲 Install `just`
+        run: |
           which mise
-
           mise settings set experimental true
           mise install --verbose
           mise list --verbose

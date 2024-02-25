@@ -26,6 +26,7 @@ jobs:
             curl --no-progress-meter https://mise.jdx.dev/install.sh | sh
           fi
           ls -l ~/.local/bin/mise
+          echo "PATH: $PATH"
           export PATH="~.local/bin:$PATH";
           command -v mise
           eval "$(mise hook-env --shell=bash)"

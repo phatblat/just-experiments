@@ -14,4 +14,4 @@ lint:
 
 # build
 build project=all-projects:
-    @echo Building {{project}}
+    @echo Building {{ project }}

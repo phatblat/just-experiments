@@ -45,3 +45,5 @@ jobs:
         run: just vars
       - name: 🚨 Lint
         run: just lint
+      - name: 🏗️ Build
+        run: just build

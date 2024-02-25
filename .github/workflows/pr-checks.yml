@@ -29,6 +29,7 @@ jobs:
           echo "PATH: $PATH"
           which mise
           command -v mise
+          ls -l $(command -v mise)
           eval "$(mise hook-env --shell=bash)"
           mise doctor
           if [[ ! -x "mise" ]]; then

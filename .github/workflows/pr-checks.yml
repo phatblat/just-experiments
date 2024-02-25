@@ -18,7 +18,7 @@ jobs:
     runs-on: macos-14
     defaults:
       run:
-        shell: bash
+        shell: bash --noprofile --login -e -o pipefail {0}
     steps:
       - name: 📲 Install `mise`
         run: |
@@ -34,12 +34,12 @@ jobs:
           mise reshim
           mise doctor
           echo 'eval "$(mise hook-env --shell=bash)"' >> ~/.bashrc
+      - uses: actions/checkout@v4
       - name: 📲 Install `just`
         run: |
           which mise
           mise settings set experimental true
           mise install --verbose
           mise list --verbose
-      - uses: actions/checkout@v4
       - name: 🚨 Lint
         run: just lint

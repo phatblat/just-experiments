@@ -1,8 +1,21 @@
 #!/usr/bin/env -S just --justfile
 # ^ A shebang isn't required, but allows a justfile to be executed
 #   like a script, with `./justfile test`, for example.
+# ---------------------------------------------------------------------------- #
+# just settings
+# https://just.systems/man/en/chapter_26.html#settings
+#
+# Command used to invoke recipes and evaluate backticks.
+# bash `-c` argument must be last.
+
+set shell := ["bash", "-euxo", "pipefail", "-c"]
+
+# ---------------------------------------------------------------------------- #
+# project variables
 
 all-projects := `ls -d */`
+
+# ---------------------------------------------------------------------------- #
 
 # lists recipes (default)
 list:
@@ -17,8 +30,6 @@ lint:
     @just --unstable --fmt --check
 
 # format justfile
-# ---------------------------------------------------------------------------- #
-
 format:
     @just --unstable --fmt
 

@@ -19,3 +19,7 @@ build projects=all-projects:
         echo Building $project
         just ${project}/build
     done
+# shows var values
+vars:
+    @just --evaluate
+

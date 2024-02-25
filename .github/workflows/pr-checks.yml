@@ -22,21 +22,26 @@ jobs:
     steps:
       - name: 📲 Install Tools
         run: |
+          which mise
           if [[ ! -x "$(command -v mise)" ]]; then
             curl --no-progress-meter https://mise.jdx.dev/install.sh | sh
           fi
           which mise
+          # MISE is installed to ~/.local/bin/mise
+          if [[ ! -x "~/.local/bin/mise" ]]; then
+            echo "~/.local/bin/mise is not executable!"
+            return 1
+          fi
+          echo 'export PATH="~.local/bin:$PATH";' >> ~/.bashrc
+          # hook-env command primes non-interactive shells
+          echo 'eval "$(mise hook-env --shell=bash)"' >> ~/.bashrc
+          # echo "eval \"\$(mise activate bash)\"" >> ~/.bashrc
+          source ~/.bashrc
+          which mise
+
           mise settings set experimental true
           mise install --verbose
           mise list --verbose
-          echo 'eval "$(mise activate bash)"' >> ~/.bashrc
-          eval (mise hook-env --shell=fish)
-          # MISE is installed to ~/bin/mise
-          if [[ -x "$HOME/bin/mise" ]]; then
-            export PATH="$HOME/bin:$PATH"
-            # hook-env command primes even non-interactive shells
-            eval "$(mise hook-env --shell=bash)"
-          fi
       - uses: actions/checkout@v4
       - name: 🚨 Lint
         run: just lint

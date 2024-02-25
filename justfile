@@ -12,7 +12,13 @@ list:
 lint:
     @just --unstable --fmt --check
 
-# build
+# format justfile
+format:
+    @just --unstable --fmt
+
+# just ${project}/build
+
+# build one or more projects (default: all)
 build projects=all-projects:
     #!/usr/bin/env bash
     for project in {{ projects }}; do

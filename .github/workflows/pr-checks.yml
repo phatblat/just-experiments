@@ -31,6 +31,7 @@ jobs:
           command -v mise
           ls -l $(command -v mise)
           eval "$(mise hook-env --shell=bash)"
+          mise reshim
           mise doctor
           echo 'eval "$(mise hook-env --shell=bash)"' >> ~/.bashrc
       - name: 📲 Install `just`

@@ -22,20 +22,18 @@ jobs:
     steps:
       - name: 📲 Install `mise`
         run: |
-          if [[ ! -x "$(command -v mise)" ]]; then
-            curl --no-progress-meter https://mise.jdx.dev/install.sh | sh
-          fi
-          ls -l ~/.local/bin/mise
           echo "PATH: $PATH"
-          export PATH="~.local/bin:$PATH";
+          if [[ ! -x "$(command -v mise)" ]]; then
+            brew install mise
+          fi
+          which mise
           command -v mise
           eval "$(mise hook-env --shell=bash)"
           mise doctor
-          if [[ ! -x "~/.local/bin/mise" ]]; then
-            echo "~/.local/bin/mise is not executable!"
+          if [[ ! -x "mise" ]]; then
+            echo "mise is not executable!"
             return 1
           fi
-          echo 'export PATH="~.local/bin:$PATH";' >> ~/.bashrc
           echo 'eval "$(mise hook-env --shell=bash)"' >> ~/.bashrc
       - name: 📲 Install `just`
         run: |

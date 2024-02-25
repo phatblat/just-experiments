@@ -25,6 +25,8 @@ jobs:
           if [[ ! -x "$(command -v mise)" ]]; then
             curl --no-progress-meter https://mise.jdx.dev/install.sh | sh
           fi
+          ls -l ~/.local/bin/mise
+          ~/.local/bin/mise doctor
           if [[ ! -x "~/.local/bin/mise" ]]; then
             echo "~/.local/bin/mise is not executable!"
             return 1

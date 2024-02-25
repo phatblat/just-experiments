@@ -5,6 +5,10 @@
 # just settings
 # https://just.systems/man/en/chapter_26.html#settings
 #
+# bash with options. Reuse in recipes with #!{{ bash }}
+
+bash := "/usr/bin/env bash -euxo pipefail"
+
 # Command used to invoke recipes and evaluate backticks.
 # bash `-c` argument must be last.
 
@@ -34,10 +38,11 @@ format:
     @just --unstable --fmt
 
 # just ${project}/build
+# {{ bash }}
 
 # build one or more projects (default: all)
-build projects=all-projects:
-    #!/usr/bin/env bash
+build *projects=all-projects:
+    #!{{ bash }}
     for project in {{ projects }}; do
         echo Building $project
         just ${project}/build

@@ -30,8 +30,20 @@ vars:
     @just --evaluate
 
 # lint justfile
-lint:
+lint-just:
     @just --unstable --fmt --check
+
+# lint project
+_lint project:
+    @just {{ project }}/build
+
+# lint justfile and one or more projects (default: all)
+lint +projects=all-projects:
+    #!{{ bash }}
+    for project in {{ projects }}; do
+        echo Linting $project
+        just ${project}/build
+    done
 
 # format justfile
 format:
@@ -44,6 +56,6 @@ format:
 build *projects=all-projects:
     #!{{ bash }}
     for project in {{ projects }}; do
-        echo Building $project
+        echo 🏗️ Building $project
         just ${project}/build
     done

@@ -22,7 +22,7 @@ all-projects := `ls -d */`
 # ---------------------------------------------------------------------------- #
 
 default:
-  @just --choose
+    @just --choose
 
 # lists recipes
 list:

@@ -7,12 +7,12 @@
 #
 # bash with options. Reuse in recipes with #!{{ bash }}
 
-bash := "/usr/bin/env bash -euxo pipefail"
+bash := "/usr/bin/env bash -euo pipefail"
 
 # Command used to invoke recipes and evaluate backticks.
 # bash `-c` argument must be last.
 
-set shell := ["bash", "-euxo", "pipefail", "-c"]
+set shell := ["bash", "-euo", "pipefail", "-c"]
 
 # ---------------------------------------------------------------------------- #
 # project variables
@@ -45,7 +45,7 @@ lint +projects=all-projects:
     #!{{ bash }}
     for project in {{ projects }}; do
         echo Linting $project
-        just ${project}/build
+        just ${project}/lint
     done
 
 # format justfile

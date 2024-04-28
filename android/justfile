@@ -2,9 +2,7 @@
 # ^ A shebang isn't required, but allows a justfile to be executed
 #   like a script, with `./justfile test`, for example.
 
-set shell := ["bash", "-euxo", "pipefail", "-c"]
-
-all-projects := `ls -d */`
+set shell := ["bash", "-euo", "pipefail", "-c"]
 
 # lists recipes (default)
 list:

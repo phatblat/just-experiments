@@ -5,6 +5,7 @@
 
 [tools]
 just = "1.25.2"
+ktlint = "1.2.1"
 
 [settings]
 experimental = true

@@ -10,7 +10,12 @@ list:
 
 # lint
 lint:
+    @ktlint
     @./gradlew lint
+
+# format
+format:
+    @ktlint --format
 
 # build
 build:

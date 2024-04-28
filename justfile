@@ -32,25 +32,71 @@ list:
 vars:
     @just --evaluate
 
+# -----[ Lint ]-----------------------------------------------------------------
+
 # lint justfile
-lint-just:
+[no-exit-message]
+_lint-just:
     @just --unstable --fmt --check
 
-# lint project
-_lint project:
+# lint a single project
+[no-exit-message]
+_lint-one project:
     @just {{ project }}/lint
 
-# lint justfile and one or more projects (default: all)
-lint +projects=all-projects:
+# lints all projects
+[no-exit-message]
+_lint-all:
     #!{{ bash }}
-    for project in {{ projects }}; do
+    for project in {{ all-projects }}; do
         echo Linting $project
         just ${project}/lint
     done
 
+# lint justfile and one or more projects (default: all)
+[no-exit-message]
+lint +project='all':
+    #!{{ bash }}
+    if [[ {{ project }} == 'all' ]]; then
+        just _lint-all
+    elif [[ {{ project }} == 'just' ]]; then
+        just _lint-just
+    else
+        just _lint-one {{ project }}
+    fi
+
+# -----[ Format ]---------------------------------------------------------------
+
 # format justfile
-format:
+[no-exit-message]
+_format-just:
     @just --unstable --fmt
+
+# format a single project
+[no-exit-message]
+_format-one project:
+    @just {{ project }}/format
+
+# formats all projects
+[no-exit-message]
+_format-all:
+    #!{{ bash }}
+    for project in {{ all-projects }}; do
+        echo formating $project
+        just ${project}/format
+    done
+
+# formats justfile or one or all projects (default: all)
+[no-exit-message]
+format +project='all':
+    #!{{ bash }}
+    if [[ {{ project }} == 'all' ]]; then
+        just _format-all
+    elif [[ {{ project }} == 'just' ]]; then
+        just _format-just
+    else
+        just _format-one {{ project }}
+    fi
 
 # just ${project}/build
 # {{ bash }}

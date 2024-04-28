@@ -21,7 +21,10 @@ all-projects := `ls -d */`
 
 # ---------------------------------------------------------------------------- #
 
-# lists recipes (default)
+default:
+  @just --choose
+
+# lists recipes
 list:
     @just --list
 
@@ -35,7 +38,7 @@ lint-just:
 
 # lint project
 _lint project:
-    @just {{ project }}/build
+    @just {{ project }}/lint
 
 # lint justfile and one or more projects (default: all)
 lint +projects=all-projects:

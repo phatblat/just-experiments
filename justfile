@@ -55,7 +55,7 @@ _lint-all:
 
 # lint justfile and one or more projects (default: all)
 [no-exit-message]
-lint +project='all':
+lint project='all':
     #!{{ bash }}
     if [[ {{ project }} == 'all' ]]; then
         just _lint-all
@@ -88,7 +88,7 @@ _format-all:
 
 # formats justfile or one or all projects (default: all)
 [no-exit-message]
-format +project='all':
+format project='all':
     #!{{ bash }}
     if [[ {{ project }} == 'all' ]]; then
         just _format-all
@@ -98,13 +98,26 @@ format +project='all':
         just _format-one {{ project }}
     fi
 
-# just ${project}/build
-# {{ bash }}
+# -----[ Build ]----------------------------------------------------------------
+# build a single project
+[no-exit-message]
+_build-one project:
+    @just {{ project }}/build
 
-# build one or more projects (default: all)
-build *projects=all-projects:
+# build all projects
+[no-exit-message]
+_build-all:
     #!{{ bash }}
-    for project in {{ projects }}; do
-        echo 🏗️ Building $project
+    for project in {{ all-projects }}; do
+        echo building $project
         just ${project}/build
     done
+
+# build one or all projects (default: all)
+build project='all':
+    #!{{ bash }}
+    if [[ {{ project }} == 'all' ]]; then
+        just _build-all
+    else
+        just _build-one {{ project }}
+    fi

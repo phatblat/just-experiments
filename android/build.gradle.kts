@@ -5,3 +5,9 @@ plugins {
     alias(libs.plugins.kotlinAndroid) apply false
 }
 true // Needed to make the Suppress annotation work for the plugins block
+
+val wrapper: Task by tasks.getting {
+    this as Wrapper
+    gradleVersion = libs.versions.gradle.get()
+    distributionType = Wrapper.DistributionType.BIN
+}

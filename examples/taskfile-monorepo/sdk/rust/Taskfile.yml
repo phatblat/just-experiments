@@ -1,0 +1,82 @@
+version: '3'
+
+# Rust SDK specific tasks
+# This file demonstrates modular task files that can be included from root
+
+vars:
+  BINARY_NAME: rust-sdk
+  BUILD_DIR: target
+
+tasks:
+  install:
+    desc: Install Rust dependencies
+    cmds:
+      - cargo fetch
+    sources:
+      - Cargo.toml
+      - Cargo.lock
+
+  update:
+    desc: Update Rust dependencies
+    cmds:
+      - cargo update
+
+  lint:
+    desc: Lint Rust code
+    cmds:
+      - cargo clippy -- -D warnings
+      - cargo check
+
+  format:
+    desc: Format Rust code
+    cmds:
+      - cargo fmt
+
+  format-check:
+    desc: Check Rust code formatting
+    cmds:
+      - cargo fmt -- --check
+
+  build:
+    desc: Build Rust application
+    cmds:
+      - cargo build --release
+    sources:
+      - 'src/**/*.rs'
+      - Cargo.toml
+      - Cargo.lock
+    generates:
+      - '{{.BUILD_DIR}}/release/{{.BINARY_NAME}}'
+
+  build-debug:
+    desc: Build Rust application (debug)
+    cmds:
+      - cargo build
+    sources:
+      - 'src/**/*.rs'
+      - Cargo.toml
+      - Cargo.lock
+    generates:
+      - '{{.BUILD_DIR}}/debug/{{.BINARY_NAME}}'
+
+  test:
+    desc: Run Rust tests
+    cmds:
+      - cargo test --verbose
+
+  run:
+    desc: Run Rust application
+    deps: [build]
+    cmds:
+      - ./{{.BUILD_DIR}}/release/{{.BINARY_NAME}} {{.CLI_ARGS}}
+
+  run-debug:
+    desc: Run Rust application (debug)
+    deps: [build-debug]
+    cmds:
+      - ./{{.BUILD_DIR}}/debug/{{.BINARY_NAME}} {{.CLI_ARGS}}
+
+  clean:
+    desc: Clean build artifacts
+    cmds:
+      - cargo clean

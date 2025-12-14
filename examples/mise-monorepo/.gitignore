@@ -1,0 +1,26 @@
+# Build artifacts
+**/bin/
+**/target/
+**/*.o
+**/*.out
+sdk-cpp
+sdk-go
+sdk-rust
+
+# Dependencies
+**/node_modules/
+**/.mise/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Generated wrapper
+mise-wrapper.sh

@@ -1,0 +1,86 @@
+version: '3'
+
+# C++ SDK specific tasks
+# This file demonstrates modular task files that can be included from root
+
+vars:
+  BINARY_NAME: cpp-sdk
+  BUILD_DIR: build
+
+tasks:
+  install:
+    desc: Install C++ dependencies (via CMake)
+    cmds:
+      - mkdir -p {{.BUILD_DIR}}
+      - cd {{.BUILD_DIR}} && cmake ..
+
+  update:
+    desc: Update C++ dependencies
+    cmds:
+      - echo "C++ dependencies are typically managed via system packages or CMake FetchContent"
+      - cd {{.BUILD_DIR}} && cmake ..
+
+  lint:
+    desc: Lint C++ code
+    cmds:
+      - |
+        if command -v clang-tidy >/dev/null 2>&1; then
+          clang-tidy *.cpp -- -std=c++17
+        else
+          echo "clang-tidy not installed, skipping"
+        fi
+      - |
+        if command -v cppcheck >/dev/null 2>&1; then
+          cppcheck --enable=all --suppress=missingIncludeSystem *.cpp
+        else
+          echo "cppcheck not installed, skipping"
+        fi
+
+  format:
+    desc: Format C++ code
+    cmds:
+      - |
+        if command -v clang-format >/dev/null 2>&1; then
+          clang-format -i *.cpp *.h 2>/dev/null || true
+        else
+          echo "clang-format not installed, skipping"
+        fi
+
+  format-check:
+    desc: Check C++ code formatting
+    cmds:
+      - |
+        if command -v clang-format >/dev/null 2>&1; then
+          clang-format --dry-run -Werror *.cpp *.h 2>/dev/null || true
+        else
+          echo "clang-format not installed, skipping"
+        fi
+
+  build:
+    desc: Build C++ application
+    deps: [install]
+    cmds:
+      - cd {{.BUILD_DIR}} && cmake --build .
+    sources:
+      - '*.cpp'
+      - '*.h'
+      - CMakeLists.txt
+    generates:
+      - '{{.BUILD_DIR}}/{{.BINARY_NAME}}'
+
+  test:
+    desc: Run C++ tests
+    deps: [build]
+    cmds:
+      - cd {{.BUILD_DIR}} && ctest --verbose
+
+  run:
+    desc: Run C++ application
+    deps: [build]
+    cmds:
+      - ./{{.BUILD_DIR}}/{{.BINARY_NAME}} {{.CLI_ARGS}}
+
+  clean:
+    desc: Clean build artifacts
+    cmds:
+      - rm -rf {{.BUILD_DIR}}

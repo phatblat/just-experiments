@@ -1,0 +1,39 @@
+# C++ SDK justfile (example)
+# This shows what the SDK-level justfile would look like with Just
+
+# Install dependencies (none for this simple example)
+install:
+    @echo "No dependencies to install for C++ SDK"
+
+# Update dependencies (none for this simple example)
+update:
+    @echo "No dependencies to update for C++ SDK"
+
+# Lint code
+lint:
+    @command -v clang-tidy >/dev/null 2>&1 && clang-tidy main.cpp -- -std=c++17 || echo "clang-tidy not installed, skipping lint"
+
+# Format code
+format:
+    @command -v clang-format >/dev/null 2>&1 && clang-format -i main.cpp || echo "clang-format not installed, skipping format"
+
+# Build application
+build:
+    g++ -std=c++17 -Wall -Wextra -o sdk-cpp main.cpp
+
+# Run tests
+test: build
+    @echo "Running C++ tests..."
+    @./sdk-cpp
+    @echo "C++ SDK test passed!"
+
+# Run application
+run *args: build
+    ./sdk-cpp {{args}}
+
+# Clean build artifacts
+clean:
+    rm -f sdk-cpp *.o
+
+# Run all checks
+check: lint test

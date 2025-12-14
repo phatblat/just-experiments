@@ -1,0 +1,30 @@
+# Build artifacts
+**/build/
+**/bin/
+**/target/
+**/*.o
+**/*.out
+**/*.exe
+
+# Language-specific
+# Go
+**/go.sum
+
+# Rust
+**/Cargo.lock
+
+# C++
+**/*.a
+**/*.so
+**/*.dylib
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# OS
+Thumbs.db

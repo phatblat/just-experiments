@@ -1,0 +1,202 @@
+# Example justfile showing how the same monorepo would be structured with Just
+# This is for comparison purposes only - demonstrates Just's superior CLI ergonomics
+#
+# Usage with Just:
+#   just build sdk/go
+#   just test sdk/rust
+#   just lint sdk/cpp
+#
+# This is much cleaner than mise's approach!
+
+# Default recipe shows help
+default:
+    @just --list
+
+# Build a specific product
+build path:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if [ ! -d "{{path}}" ]; then
+        echo "Error: Product directory '{{path}}' does not exist"
+        exit 1
+    fi
+    echo "Building {{path}}..."
+    cd "{{path}}" && just build
+
+# Test a specific product
+test path:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if [ ! -d "{{path}}" ]; then
+        echo "Error: Product directory '{{path}}' does not exist"
+        exit 1
+    fi
+    echo "Testing {{path}}..."
+    cd "{{path}}" && just test
+
+# Lint a specific product
+lint path:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if [ ! -d "{{path}}" ]; then
+        echo "Error: Product directory '{{path}}' does not exist"
+        exit 1
+    fi
+    echo "Linting {{path}}..."
+    cd "{{path}}" && just lint
+
+# Format a specific product
+format path:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if [ ! -d "{{path}}" ]; then
+        echo "Error: Product directory '{{path}}' does not exist"
+        exit 1
+    fi
+    echo "Formatting {{path}}..."
+    cd "{{path}}" && just format
+
+# Run a specific product
+run path *args:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if [ ! -d "{{path}}" ]; then
+        echo "Error: Product directory '{{path}}' does not exist"
+        exit 1
+    fi
+    echo "Running {{path}}..."
+    cd "{{path}}" && just run {{args}}
+
+# Clean a specific product
+clean path:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if [ ! -d "{{path}}" ]; then
+        echo "Error: Product directory '{{path}}' does not exist"
+        exit 1
+    fi
+    echo "Cleaning {{path}}..."
+    cd "{{path}}" && just clean
+
+# Build all products
+build-all:
+    @echo "Building all products..."
+    @just build sdk/go
+    @just build sdk/rust
+    @just build sdk/cpp
+    @echo "All products built!"
+
+# Test all products
+test-all:
+    @echo "Testing all products..."
+    @just test sdk/go
+    @just test sdk/rust
+    @just test sdk/cpp
+    @echo "All tests passed!"
+
+# Lint all products
+lint-all:
+    @echo "Linting all products..."
+    @just lint sdk/go
+    @just lint sdk/rust
+    @just lint sdk/cpp
+    @echo "All linting complete!"
+
+# Format all products
+format-all:
+    @echo "Formatting all products..."
+    @just format sdk/go
+    @just format sdk/rust
+    @just format sdk/cpp
+    @echo "All formatting complete!"
+
+# Clean all products
+clean-all:
+    @echo "Cleaning all products..."
+    @just clean sdk/go
+    @just clean sdk/rust
+    @just clean sdk/cpp
+    @echo "All products cleaned!"
+
+# Run all checks (lint + test)
+check-all:
+    @echo "Running all checks..."
+    @just lint-all
+    @just test-all
+    @echo "All checks passed!"
+
+# List all products
+list-products:
+    @find sdk -maxdepth 1 -type d -name '*' | grep -v '^sdk$' | sort
+
+# Setup development environment
+setup:
+    @echo "Setting up development environment..."
+    @echo "Installing Go dependencies..."
+    @cd sdk/go && just install
+    @echo "Installing Rust dependencies..."
+    @cd sdk/rust && just install
+    @echo "Installing C++ dependencies..."
+    @cd sdk/cpp && just install
+    @echo "Setup complete!"
+
+# ==============================================================================
+# Companion justfiles for each SDK (would be in sdk/*/justfile)
+# ==============================================================================
+
+# sdk/go/justfile would contain:
+# build:
+#     go build -o bin/sdk-go .
+#
+# test:
+#     go test -v ./...
+#
+# lint:
+#     golangci-lint run ./...
+#
+# format:
+#     go fmt ./...
+#
+# run *args:
+#     go run . {{args}}
+#
+# clean:
+#     rm -rf bin/ && go clean
+#
+# install:
+#     go mod download
+
+# ==============================================================================
+# Comparison: Just vs Mise
+# ==============================================================================
+#
+# Just Advantages:
+# 1. Natural positional arguments: `just build sdk/go`
+#    vs mise: `PRODUCT=sdk/go mise run build-env` or `mise run go:build`
+#
+# 2. Path validation is simple and inline
+#    vs mise: Requires bash scripting in run blocks
+#
+# 3. Recipe parameters with types and defaults
+#    vs mise: Environment variables only
+#
+# 4. Cleaner syntax with @ for silent recipes
+#    vs mise: Must use shell scripting
+#
+# 5. Better --help and --list output
+#    vs mise: Basic task listing
+#
+# Mise Advantages:
+# 1. Integrated version management (mise install, mise use)
+#    vs just: Requires separate tool (asdf, mise, etc.)
+#
+# 2. Single tool for versions + tasks
+#    vs just: Focused only on tasks
+#
+# 3. TOML configuration (if you prefer TOML over justfile syntax)
+#    vs just: Custom recipe syntax
+#
+# Verdict for this use case:
+# - Just is clearly better as a pure task runner
+# - Mise is acceptable if you're already using it for version management
+# - Consider using both: mise for versions, just for tasks

@@ -1,0 +1,53 @@
+# Go SDK justfile
+# This file contains all commands specific to the Go SDK
+
+# Install Go dependencies
+install:
+    @echo "Installing Go dependencies..."
+    go mod download
+    go mod tidy
+
+# Update Go dependencies
+update:
+    @echo "Updating Go dependencies..."
+    go get -u ./...
+    go mod tidy
+
+# Lint Go code
+lint:
+    @echo "Linting Go code..."
+    go vet ./...
+    @if command -v golangci-lint >/dev/null 2>&1; then \
+        golangci-lint run ./...; \
+    else \
+        echo "golangci-lint not installed, skipping advanced linting"; \
+    fi
+
+# Format Go code
+format:
+    @echo "Formatting Go code..."
+    gofmt -w .
+    @if command -v goimports >/dev/null 2>&1; then \
+        goimports -w .; \
+    fi
+
+# Build Go binary
+build:
+    @echo "Building Go binary..."
+    go build -o bin/sdk-go main.go
+
+# Run Go tests
+test:
+    @echo "Running Go tests..."
+    go test -v ./...
+
+# Run the Go application
+run *ARGS:
+    @echo "Running Go application..."
+    go run main.go {{ARGS}}
+
+# Clean build artifacts
+clean:
+    @echo "Cleaning Go build artifacts..."
+    rm -rf bin/
+    go clean

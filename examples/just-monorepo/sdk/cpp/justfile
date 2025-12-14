@@ -1,0 +1,50 @@
+# C++ SDK justfile
+# This file contains all commands specific to the C++ SDK
+
+# Install C++ dependencies (placeholder)
+install:
+    @echo "Installing C++ dependencies..."
+    @echo "No package manager configured. This is a placeholder."
+
+# Update C++ dependencies (placeholder)
+update:
+    @echo "Updating C++ dependencies..."
+    @echo "No package manager configured. This is a placeholder."
+
+# Lint C++ code
+lint:
+    @echo "Linting C++ code..."
+    @if command -v clang-tidy >/dev/null 2>&1; then \
+        clang-tidy src/*.cpp -- -std=c++17; \
+    else \
+        echo "clang-tidy not installed, skipping linting"; \
+    fi
+
+# Format C++ code
+format:
+    @echo "Formatting C++ code..."
+    @if command -v clang-format >/dev/null 2>&1; then \
+        clang-format -i src/*.cpp; \
+    else \
+        echo "clang-format not installed, skipping formatting"; \
+    fi
+
+# Build C++ binary
+build:
+    @echo "Building C++ binary..."
+    make all
+
+# Run C++ tests
+test:
+    @echo "Running C++ tests..."
+    make test
+
+# Run the C++ application
+run *ARGS:
+    @echo "Running C++ application..."
+    @./build/sdk-cpp {{ARGS}}
+
+# Clean build artifacts
+clean:
+    @echo "Cleaning C++ build artifacts..."
+    make clean

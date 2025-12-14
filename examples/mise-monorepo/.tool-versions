@@ -1,0 +1,6 @@
+# mise version management file
+# This specifies which versions of language runtimes to use
+# mise will automatically install and use these versions
+
+go 1.21.5
+rust 1.75.0

@@ -1,0 +1,41 @@
+# Go SDK justfile (example)
+# This shows what the SDK-level justfile would look like with Just
+
+# Install dependencies
+install:
+    go mod download
+
+# Update dependencies
+update:
+    go get -u ./...
+    go mod tidy
+
+# Lint code
+lint:
+    @command -v golangci-lint >/dev/null 2>&1 || go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+    golangci-lint run ./...
+
+# Format code
+format:
+    go fmt ./...
+
+# Build application
+build:
+    mkdir -p bin
+    go build -o bin/sdk-go .
+
+# Run tests
+test:
+    go test -v ./...
+
+# Run application
+run *args:
+    go run . {{args}}
+
+# Clean build artifacts
+clean:
+    rm -rf bin/
+    go clean
+
+# Run all checks
+check: lint test

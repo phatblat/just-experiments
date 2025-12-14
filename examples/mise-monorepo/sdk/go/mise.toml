@@ -1,0 +1,46 @@
+# Go SDK mise tasks
+# These can be called directly from this directory or included from root
+
+[tasks.install]
+description = "Install Go dependencies"
+run = "go mod download"
+dir = "{{cwd}}"
+
+[tasks.update]
+description = "Update Go dependencies"
+run = "go get -u ./... && go mod tidy"
+dir = "{{cwd}}"
+
+[tasks.lint]
+description = "Lint Go code"
+run = [
+    "test -f $(go env GOPATH)/bin/golangci-lint || go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest",
+    "golangci-lint run ./..."
+]
+dir = "{{cwd}}"
+
+[tasks.format]
+description = "Format Go code"
+run = "go fmt ./..."
+dir = "{{cwd}}"
+
+[tasks.build]
+description = "Build Go application"
+run = "go build -o bin/sdk-go ."
+dir = "{{cwd}}"
+
+[tasks.test]
+description = "Run Go tests"
+run = "go test -v ./..."
+dir = "{{cwd}}"
+
+[tasks.run]
+description = "Run Go application"
+run = "go run ."
+dir = "{{cwd}}"
+depends = ["build"]
+
+[tasks.clean]
+description = "Clean Go build artifacts"
+run = "rm -rf bin/ && go clean"
+dir = "{{cwd}}"

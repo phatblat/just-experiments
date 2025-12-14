@@ -1,0 +1,221 @@
+version: '3'
+
+# Root Taskfile for Polyglot Monorepo
+# Demonstrates task as a command launcher with modular includes
+
+# Include modular taskfiles from each SDK
+includes:
+  go:
+    taskfile: ./sdk/go/Taskfile.yml
+    dir: ./sdk/go
+  rust:
+    taskfile: ./sdk/rust/Taskfile.yml
+    dir: ./sdk/rust
+  cpp:
+    taskfile: ./sdk/cpp/Taskfile.yml
+    dir: ./sdk/cpp
+
+vars:
+  # Valid SDK paths
+  SDK_PATHS: "sdk/go sdk/rust sdk/cpp"
+
+tasks:
+  # Default task - show available commands
+  default:
+    desc: Show available tasks
+    silent: true
+    cmds:
+      - task --list
+
+  # Validation helper task
+  validate-sdk:
+    internal: true
+    cmds:
+      - |
+        if [ -z "{{.SDK}}" ]; then
+          echo "Error: SDK parameter is required"
+          echo "Usage: task <command> SDK=<sdk-path>"
+          echo "Valid SDKs: {{.SDK_PATHS}}"
+          exit 1
+        fi
+        if [ ! -d "{{.SDK}}" ]; then
+          echo "Error: SDK path '{{.SDK}}' does not exist"
+          echo "Valid SDKs: {{.SDK_PATHS}}"
+          exit 1
+        fi
+        if [ ! -f "{{.SDK}}/Taskfile.yml" ]; then
+          echo "Error: No Taskfile.yml found in '{{.SDK}}'"
+          exit 1
+        fi
+
+  # Unified commands that work with any SDK
+  # Usage: task install SDK=sdk/go
+  # Usage: task build SDK=sdk/rust
+  # Usage: task run SDK=sdk/cpp CLI_ARGS="arg1 arg2"
+
+  install:
+    desc: Install dependencies for specified SDK (usage: task install SDK=sdk/go)
+    deps: [validate-sdk]
+    dir: '{{.SDK}}'
+    cmds:
+      - task -d {{.SDK}} install
+
+  update:
+    desc: Update dependencies for specified SDK (usage: task update SDK=sdk/rust)
+    deps: [validate-sdk]
+    dir: '{{.SDK}}'
+    cmds:
+      - task -d {{.SDK}} update
+
+  lint:
+    desc: Lint code for specified SDK (usage: task lint SDK=sdk/cpp)
+    deps: [validate-sdk]
+    dir: '{{.SDK}}'
+    cmds:
+      - task -d {{.SDK}} lint
+
+  format:
+    desc: Format code for specified SDK (usage: task format SDK=sdk/go)
+    deps: [validate-sdk]
+    dir: '{{.SDK}}'
+    cmds:
+      - task -d {{.SDK}} format
+
+  build:
+    desc: Build specified SDK (usage: task build SDK=sdk/rust)
+    deps: [validate-sdk]
+    dir: '{{.SDK}}'
+    cmds:
+      - task -d {{.SDK}} build
+
+  test:
+    desc: Run tests for specified SDK (usage: task test SDK=sdk/cpp)
+    deps: [validate-sdk]
+    dir: '{{.SDK}}'
+    cmds:
+      - task -d {{.SDK}} test
+
+  run:
+    desc: Run specified SDK (usage: task run SDK=sdk/go CLI_ARGS="--help")
+    deps: [validate-sdk]
+    dir: '{{.SDK}}'
+    cmds:
+      - task -d {{.SDK}} run CLI_ARGS="{{.CLI_ARGS}}"
+
+  clean:
+    desc: Clean build artifacts for specified SDK (usage: task clean SDK=sdk/rust)
+    deps: [validate-sdk]
+    dir: '{{.SDK}}'
+    cmds:
+      - task -d {{.SDK}} clean
+
+  # Batch operations - run command on all SDKs
+  install-all:
+    desc: Install dependencies for all SDKs
+    cmds:
+      - task install SDK=sdk/go
+      - task install SDK=sdk/rust
+      - task install SDK=sdk/cpp
+
+  build-all:
+    desc: Build all SDKs
+    cmds:
+      - task build SDK=sdk/go
+      - task build SDK=sdk/rust
+      - task build SDK=sdk/cpp
+
+  test-all:
+    desc: Run tests for all SDKs
+    cmds:
+      - task test SDK=sdk/go
+      - task test SDK=sdk/rust
+      - task test SDK=sdk/cpp
+
+  lint-all:
+    desc: Lint all SDKs
+    cmds:
+      - task lint SDK=sdk/go
+      - task lint SDK=sdk/rust
+      - task lint SDK=sdk/cpp
+
+  format-all:
+    desc: Format all SDKs
+    cmds:
+      - task format SDK=sdk/go
+      - task format SDK=sdk/rust
+      - task format SDK=sdk/cpp
+
+  clean-all:
+    desc: Clean all SDKs
+    cmds:
+      - task clean SDK=sdk/go
+      - task clean SDK=sdk/rust
+      - task clean SDK=sdk/cpp
+
+  # Direct SDK invocation using includes (alternative syntax)
+  # Usage: task go:build
+  # Usage: task rust:test
+  # Usage: task cpp:run CLI_ARGS="--help"
+
+  # CI/CD pipeline example
+  ci:
+    desc: Run full CI pipeline (install, lint, test, build)
+    cmds:
+      - echo "Running CI pipeline for all SDKs..."
+      - task install-all
+      - task lint-all
+      - task test-all
+      - task build-all
+      - echo "CI pipeline completed successfully!"
+
+  # List all SDKs
+  list-sdks:
+    desc: List all available SDKs
+    silent: true
+    cmds:
+      - echo "Available SDKs:"
+      - |
+        for sdk in {{.SDK_PATHS}}; do
+          if [ -d "$sdk" ]; then
+            echo "  - $sdk"
+          fi
+        done
+
+  # Help with examples
+  help:
+    desc: Show usage examples
+    silent: true
+    cmds:
+      - |
+        echo "Taskfile Monorepo Command Launcher"
+        echo "=================================="
+        echo ""
+        echo "USAGE:"
+        echo "  Single SDK operations:"
+        echo "    task <command> SDK=<sdk-path> [CLI_ARGS=\"args\"]"
+        echo ""
+        echo "  All SDK operations:"
+        echo "    task <command>-all"
+        echo ""
+        echo "  Direct SDK invocation:"
+        echo "    task <sdk-name>:<command> [CLI_ARGS=\"args\"]"
+        echo ""
+        echo "EXAMPLES:"
+        echo "  task build SDK=sdk/go"
+        echo "  task run SDK=sdk/rust CLI_ARGS=\"hello world\""
+        echo "  task test SDK=sdk/cpp"
+        echo "  task build-all"
+        echo "  task go:build"
+        echo "  task rust:run CLI_ARGS=\"--version\""
+        echo ""
+        echo "AVAILABLE COMMANDS:"
+        echo "  install    - Install dependencies"
+        echo "  update     - Update dependencies"
+        echo "  lint       - Run linters"
+        echo "  format     - Format code"
+        echo "  build      - Build project"
+        echo "  test       - Run tests"
+        echo "  run        - Run application"
+        echo "  clean      - Clean build artifacts"
+        echo ""
+        echo "For full task list, run: task --list"

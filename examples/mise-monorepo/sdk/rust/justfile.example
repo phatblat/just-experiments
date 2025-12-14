@@ -1,0 +1,41 @@
+# Rust SDK justfile (example)
+# This shows what the SDK-level justfile would look like with Just
+
+# Install dependencies
+install:
+    cargo fetch
+
+# Update dependencies
+update:
+    cargo update
+
+# Lint code
+lint:
+    cargo clippy -- -D warnings
+
+# Format code
+format:
+    cargo fmt
+
+# Build application
+build:
+    cargo build
+
+# Run tests
+test:
+    cargo test
+
+# Run application
+run *args:
+    cargo run -- {{args}}
+
+# Clean build artifacts
+clean:
+    cargo clean
+
+# Build release version
+build-release:
+    cargo build --release
+
+# Run all checks
+check: lint test

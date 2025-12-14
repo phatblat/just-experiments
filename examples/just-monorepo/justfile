@@ -1,0 +1,159 @@
+# Monorepo Command Launcher with just
+# This demonstrates using just as a polyglot monorepo command runner
+#
+# Usage: just <command> <product_path> [options]
+# Example: just build sdk/rust
+
+# Default recipe - show available commands
+default:
+    @just --list
+
+# List all available SDKs
+list-sdks:
+    @echo "Available SDKs:"
+    @ls -1 sdk/
+
+# Validate that a path exists and is a directory
+[private]
+validate-path path:
+    #!/usr/bin/env bash
+    if [ ! -d "{{path}}" ]; then
+        echo "Error: Path '{{path}}' does not exist or is not a directory"
+        exit 1
+    fi
+    if [ ! -f "{{path}}/justfile" ]; then
+        echo "Error: No justfile found in '{{path}}'"
+        exit 1
+    fi
+
+# Install dependencies for a specific SDK
+install path *FLAGS:
+    @just validate-path {{path}}
+    @echo "Installing dependencies for {{path}}..."
+    cd {{path}} && just {{FLAGS}} install
+
+# Update dependencies for a specific SDK
+update path *FLAGS:
+    @just validate-path {{path}}
+    @echo "Updating dependencies for {{path}}..."
+    cd {{path}} && just {{FLAGS}} update
+
+# Lint code for a specific SDK
+lint path *FLAGS:
+    @just validate-path {{path}}
+    @echo "Linting {{path}}..."
+    cd {{path}} && just {{FLAGS}} lint
+
+# Format code for a specific SDK
+format path *FLAGS:
+    @just validate-path {{path}}
+    @echo "Formatting {{path}}..."
+    cd {{path}} && just {{FLAGS}} format
+
+# Build a specific SDK
+build path *FLAGS:
+    @just validate-path {{path}}
+    @echo "Building {{path}}..."
+    cd {{path}} && just {{FLAGS}} build
+
+# Run tests for a specific SDK
+test path *FLAGS:
+    @just validate-path {{path}}
+    @echo "Testing {{path}}..."
+    cd {{path}} && just {{FLAGS}} test
+
+# Run a specific SDK application
+run path *ARGS:
+    @just validate-path {{path}}
+    @echo "Running {{path}}..."
+    cd {{path}} && just run {{ARGS}}
+
+# Clean build artifacts for a specific SDK
+clean path *FLAGS:
+    @just validate-path {{path}}
+    @echo "Cleaning {{path}}..."
+    cd {{path}} && just {{FLAGS}} clean
+
+# Run a command for ALL SDKs
+all-sdks command *FLAGS:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    for sdk in sdk/*/; do
+        if [ -f "$sdk/justfile" ]; then
+            echo "========================================";
+            echo "Running '{{command}}' for $sdk";
+            echo "========================================";
+            cd "$sdk" && just {{FLAGS}} {{command}} || echo "Failed for $sdk";
+            cd - > /dev/null;
+            echo "";
+        fi
+    done
+
+# Install dependencies for ALL SDKs
+install-all *FLAGS:
+    @just all-sdks install {{FLAGS}}
+
+# Update dependencies for ALL SDKs
+update-all *FLAGS:
+    @just all-sdks update {{FLAGS}}
+
+# Lint ALL SDKs
+lint-all *FLAGS:
+    @just all-sdks lint {{FLAGS}}
+
+# Format ALL SDKs
+format-all *FLAGS:
+    @just all-sdks format {{FLAGS}}
+
+# Build ALL SDKs
+build-all *FLAGS:
+    @just all-sdks build {{FLAGS}}
+
+# Test ALL SDKs
+test-all *FLAGS:
+    @just all-sdks test {{FLAGS}}
+
+# Clean ALL SDKs
+clean-all *FLAGS:
+    @just all-sdks clean {{FLAGS}}
+
+# Check if all SDKs are properly configured
+check:
+    #!/usr/bin/env bash
+    echo "Checking SDK configuration..."
+    for sdk in sdk/*/; do
+        echo -n "Checking $sdk... ";
+        if [ -f "$sdk/justfile" ]; then
+            echo "✓ justfile found";
+        else
+            echo "✗ justfile missing";
+        fi
+    done
+
+# Show just version and settings
+info:
+    @echo "just version:"
+    @just --version
+    @echo ""
+    @echo "Working directory:"
+    @pwd
+    @echo ""
+    @echo "Available SDKs:"
+    @just list-sdks
+
+# Demonstrate dry-run capability (just has built-in --dry-run flag)
+# Usage: just --dry-run build sdk/rust
+demo-dry-run:
+    @echo "To use dry-run mode, add the --dry-run flag:"
+    @echo "  just --dry-run build sdk/rust"
+    @echo ""
+    @echo "To see command output without execution, use --verbose:"
+    @echo "  just --verbose build sdk/rust"
+
+# Example: Run all tests in CI mode
+ci:
+    @echo "Running CI pipeline..."
+    @just lint-all
+    @just test-all
+    @just build-all
+    @echo "✓ CI pipeline completed successfully!"

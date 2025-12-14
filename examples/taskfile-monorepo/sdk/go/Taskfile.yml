@@ -1,0 +1,78 @@
+version: '3'
+
+# Go SDK specific tasks
+# This file demonstrates modular task files that can be included from root
+
+vars:
+  BINARY_NAME: go-sdk
+  BUILD_DIR: build
+
+tasks:
+  install:
+    desc: Install Go dependencies
+    cmds:
+      - go mod download
+      - go mod verify
+    sources:
+      - go.mod
+      - go.sum
+
+  update:
+    desc: Update Go dependencies
+    cmds:
+      - go get -u ./...
+      - go mod tidy
+
+  lint:
+    desc: Lint Go code
+    cmds:
+      - go vet ./...
+      - go fmt ./...
+      # Optionally use golangci-lint if available
+      - |
+        if command -v golangci-lint >/dev/null 2>&1; then
+          golangci-lint run
+        else
+          echo "golangci-lint not installed, skipping"
+        fi
+
+  format:
+    desc: Format Go code
+    cmds:
+      - go fmt ./...
+      - |
+        if command -v goimports >/dev/null 2>&1; then
+          goimports -w .
+        else
+          echo "goimports not installed, using go fmt only"
+        fi
+
+  build:
+    desc: Build Go application
+    cmds:
+      - mkdir -p {{.BUILD_DIR}}
+      - go build -o {{.BUILD_DIR}}/{{.BINARY_NAME}} .
+    sources:
+      - '*.go'
+      - go.mod
+      - go.sum
+    generates:
+      - '{{.BUILD_DIR}}/{{.BINARY_NAME}}'
+
+  test:
+    desc: Run Go tests
+    cmds:
+      - go test -v -race -coverprofile=coverage.out ./...
+
+  run:
+    desc: Run Go application
+    deps: [build]
+    cmds:
+      - ./{{.BUILD_DIR}}/{{.BINARY_NAME}} {{.CLI_ARGS}}
+
+  clean:
+    desc: Clean build artifacts
+    cmds:
+      - rm -rf {{.BUILD_DIR}}
+      - rm -f coverage.out
+      - go clean

@@ -1,0 +1,46 @@
+# C++ SDK mise tasks
+# These can be called directly from this directory or included from root
+
+[tasks.install]
+description = "Install C++ dependencies"
+run = "echo 'No dependencies to install for C++ SDK'"
+dir = "{{cwd}}"
+
+[tasks.update]
+description = "Update C++ dependencies"
+run = "echo 'No dependencies to update for C++ SDK'"
+dir = "{{cwd}}"
+
+[tasks.lint]
+description = "Lint C++ code"
+run = [
+    "command -v clang-tidy >/dev/null 2>&1 && clang-tidy main.cpp -- -std=c++17 || echo 'clang-tidy not installed, skipping lint'"
+]
+dir = "{{cwd}}"
+
+[tasks.format]
+description = "Format C++ code"
+run = [
+    "command -v clang-format >/dev/null 2>&1 && clang-format -i main.cpp || echo 'clang-format not installed, skipping format'"
+]
+dir = "{{cwd}}"
+
+[tasks.build]
+description = "Build C++ application"
+run = "make build"
+dir = "{{cwd}}"
+
+[tasks.test]
+description = "Run C++ tests"
+run = "make test"
+dir = "{{cwd}}"
+
+[tasks.run]
+description = "Run C++ application"
+run = "make run"
+dir = "{{cwd}}"
+
+[tasks.clean]
+description = "Clean C++ build artifacts"
+run = "make clean"
+dir = "{{cwd}}"

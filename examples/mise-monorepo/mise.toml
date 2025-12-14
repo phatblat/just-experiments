@@ -1,0 +1,340 @@
+# Mise Monorepo Task Runner Configuration
+# This demonstrates mise's task running capabilities for a polyglot monorepo
+#
+# Usage:
+#   mise run <command> <product_path>
+#   mise run build sdk/go
+#   mise run test sdk/rust
+#   mise run lint sdk/cpp
+#
+# Note: mise tasks don't natively support custom positional arguments well.
+# This configuration demonstrates various approaches and their limitations.
+
+# ==============================================================================
+# Approach 1: Environment variable based (recommended for mise)
+# ==============================================================================
+# Usage: PRODUCT=sdk/go mise run build-env
+# This works because mise supports environment variables well
+
+[tasks."build-env"]
+description = "Build a product (requires PRODUCT env var)"
+run = """
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [ -z "${PRODUCT:-}" ]; then
+    echo "Error: PRODUCT environment variable is required"
+    echo "Usage: PRODUCT=sdk/go mise run build-env"
+    exit 1
+fi
+
+if [ ! -d "$PRODUCT" ]; then
+    echo "Error: Product directory '$PRODUCT' does not exist"
+    exit 1
+fi
+
+echo "Building $PRODUCT..."
+cd "$PRODUCT" && mise run build
+"""
+
+[tasks."test-env"]
+description = "Test a product (requires PRODUCT env var)"
+run = """
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [ -z "${PRODUCT:-}" ]; then
+    echo "Error: PRODUCT environment variable is required"
+    echo "Usage: PRODUCT=sdk/rust mise run test-env"
+    exit 1
+fi
+
+if [ ! -d "$PRODUCT" ]; then
+    echo "Error: Product directory '$PRODUCT' does not exist"
+    exit 1
+fi
+
+echo "Testing $PRODUCT..."
+cd "$PRODUCT" && mise run test
+"""
+
+[tasks."lint-env"]
+description = "Lint a product (requires PRODUCT env var)"
+run = """
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [ -z "${PRODUCT:-}" ]; then
+    echo "Error: PRODUCT environment variable is required"
+    exit 1
+fi
+
+if [ ! -d "$PRODUCT" ]; then
+    echo "Error: Product directory '$PRODUCT' does not exist"
+    exit 1
+fi
+
+echo "Linting $PRODUCT..."
+cd "$PRODUCT" && mise run lint
+"""
+
+# ==============================================================================
+# Approach 2: Wrapper script that accepts arguments
+# ==============================================================================
+# Usage: ./mise-wrapper.sh build sdk/go
+# This provides better UX but requires an external script
+
+[tasks."create-wrapper"]
+description = "Create a wrapper script for better argument handling"
+run = """
+cat > mise-wrapper.sh << 'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+
+COMMAND=${1:-}
+PRODUCT=${2:-}
+
+if [ -z "$COMMAND" ] || [ -z "$PRODUCT" ]; then
+    echo "Usage: $0 <command> <product_path>"
+    echo "Example: $0 build sdk/go"
+    echo ""
+    echo "Commands: install, update, lint, format, build, test, run, clean"
+    echo "Products: sdk/go, sdk/rust, sdk/cpp"
+    exit 1
+fi
+
+if [ ! -d "$PRODUCT" ]; then
+    echo "Error: Product directory '$PRODUCT' does not exist"
+    exit 1
+fi
+
+echo "Running '$COMMAND' for $PRODUCT..."
+export PRODUCT
+mise run "${COMMAND}-env"
+EOF
+chmod +x mise-wrapper.sh
+echo "Created mise-wrapper.sh"
+"""
+
+# ==============================================================================
+# Approach 3: Hardcoded tasks per product (verbose but explicit)
+# ==============================================================================
+
+[tasks."go:build"]
+description = "Build Go SDK"
+run = "cd sdk/go && mise run build"
+
+[tasks."go:test"]
+description = "Test Go SDK"
+run = "cd sdk/go && mise run test"
+
+[tasks."go:lint"]
+description = "Lint Go SDK"
+run = "cd sdk/go && mise run lint"
+
+[tasks."go:format"]
+description = "Format Go code"
+run = "cd sdk/go && mise run format"
+
+[tasks."go:run"]
+description = "Run Go SDK"
+run = "cd sdk/go && mise run run"
+
+[tasks."go:clean"]
+description = "Clean Go SDK"
+run = "cd sdk/go && mise run clean"
+
+[tasks."rust:build"]
+description = "Build Rust SDK"
+run = "cd sdk/rust && mise run build"
+
+[tasks."rust:test"]
+description = "Test Rust SDK"
+run = "cd sdk/rust && mise run test"
+
+[tasks."rust:lint"]
+description = "Lint Rust SDK"
+run = "cd sdk/rust && mise run lint"
+
+[tasks."rust:format"]
+description = "Format Rust code"
+run = "cd sdk/rust && mise run format"
+
+[tasks."rust:run"]
+description = "Run Rust SDK"
+run = "cd sdk/rust && mise run run"
+
+[tasks."rust:clean"]
+description = "Clean Rust SDK"
+run = "cd sdk/rust && mise run clean"
+
+[tasks."cpp:build"]
+description = "Build C++ SDK"
+run = "cd sdk/cpp && mise run build"
+
+[tasks."cpp:test"]
+description = "Test C++ SDK"
+run = "cd sdk/cpp && mise run test"
+
+[tasks."cpp:lint"]
+description = "Lint C++ SDK"
+run = "cd sdk/cpp && mise run lint"
+
+[tasks."cpp:format"]
+description = "Format C++ code"
+run = "cd sdk/cpp && mise run format"
+
+[tasks."cpp:run"]
+description = "Run C++ SDK"
+run = "cd sdk/cpp && mise run run"
+
+[tasks."cpp:clean"]
+description = "Clean C++ SDK"
+run = "cd sdk/cpp && mise run clean"
+
+# ==============================================================================
+# Approach 4: All-in-one tasks (run for all products)
+# ==============================================================================
+
+[tasks."build-all"]
+description = "Build all SDKs"
+run = [
+    "cd sdk/go && mise run build",
+    "cd sdk/rust && mise run build",
+    "cd sdk/cpp && mise run build"
+]
+
+[tasks."test-all"]
+description = "Test all SDKs"
+run = [
+    "cd sdk/go && mise run test",
+    "cd sdk/rust && mise run test",
+    "cd sdk/cpp && mise run test"
+]
+
+[tasks."lint-all"]
+description = "Lint all SDKs"
+run = [
+    "cd sdk/go && mise run lint",
+    "cd sdk/rust && mise run lint",
+    "cd sdk/cpp && mise run lint"
+]
+
+[tasks."format-all"]
+description = "Format all SDKs"
+run = [
+    "cd sdk/go && mise run format",
+    "cd sdk/rust && mise run format",
+    "cd sdk/cpp && mise run format"
+]
+
+[tasks."clean-all"]
+description = "Clean all SDKs"
+run = [
+    "cd sdk/go && mise run clean",
+    "cd sdk/rust && mise run clean",
+    "cd sdk/cpp && mise run clean"
+]
+
+# ==============================================================================
+# Utility tasks
+# ==============================================================================
+
+[tasks."list-products"]
+description = "List all available products"
+run = "find sdk -maxdepth 1 -type d -name '*' | grep -v '^sdk$' | sort"
+
+[tasks."setup"]
+description = "Setup development environment for all SDKs"
+run = """
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "Setting up development environment..."
+echo ""
+
+# Check for required tools
+echo "Checking for required tools..."
+command -v go >/dev/null 2>&1 && echo "✓ Go installed" || echo "✗ Go not installed"
+command -v cargo >/dev/null 2>&1 && echo "✓ Rust installed" || echo "✗ Rust not installed"
+command -v g++ >/dev/null 2>&1 && echo "✓ C++ compiler installed" || echo "✗ C++ compiler not installed"
+echo ""
+
+echo "Installing dependencies for all SDKs..."
+cd sdk/go && mise run install
+cd ../rust && mise run install
+cd ../cpp && mise run install
+cd ../..
+
+echo ""
+echo "Setup complete!"
+"""
+
+[tasks."check"]
+description = "Run all checks (lint, format-check, test) for all SDKs"
+run = [
+    "echo 'Running checks for all SDKs...'",
+    "cd sdk/go && mise run lint && mise run test",
+    "cd sdk/rust && mise run lint && mise run test",
+    "cd sdk/cpp && mise run lint && mise run test",
+    "echo 'All checks passed!'"
+]
+
+# ==============================================================================
+# Documentation and help
+# ==============================================================================
+
+[tasks."help"]
+description = "Show usage information"
+run = """
+#!/usr/bin/env bash
+cat << 'EOF'
+Mise Monorepo Task Runner
+==========================
+
+This monorepo demonstrates mise's task running capabilities for polyglot projects.
+
+APPROACHES:
+
+1. Environment Variable Based (Recommended):
+   PRODUCT=sdk/go mise run build-env
+   PRODUCT=sdk/rust mise run test-env
+
+2. Wrapper Script (Best UX):
+   ./mise-wrapper.sh build sdk/go
+   ./mise-wrapper.sh test sdk/rust
+
+3. Namespaced Tasks (Explicit):
+   mise run go:build
+   mise run rust:test
+   mise run cpp:lint
+
+4. All-at-once Tasks:
+   mise run build-all
+   mise run test-all
+   mise run lint-all
+
+AVAILABLE TASKS:
+   mise tasks              # List all available tasks
+   mise run help          # Show this help
+   mise run list-products # List all SDK products
+   mise run setup         # Setup all SDKs
+   mise run check         # Run all checks
+
+SUPPORTED PRODUCTS:
+   sdk/go     - Go SDK
+   sdk/rust   - Rust SDK
+   sdk/cpp    - C++ SDK
+
+SUPPORTED COMMANDS:
+   install   - Install dependencies
+   update    - Update dependencies
+   lint      - Lint code
+   format    - Format code
+   build     - Build application
+   test      - Run tests
+   run       - Run application
+   clean     - Clean build artifacts
+
+EOF
+"""

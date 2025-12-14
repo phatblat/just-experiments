@@ -1,0 +1,42 @@
+# Rust SDK mise tasks
+# These can be called directly from this directory or included from root
+
+[tasks.install]
+description = "Install Rust dependencies"
+run = "cargo fetch"
+dir = "{{cwd}}"
+
+[tasks.update]
+description = "Update Rust dependencies"
+run = "cargo update"
+dir = "{{cwd}}"
+
+[tasks.lint]
+description = "Lint Rust code"
+run = "cargo clippy -- -D warnings"
+dir = "{{cwd}}"
+
+[tasks.format]
+description = "Format Rust code"
+run = "cargo fmt"
+dir = "{{cwd}}"
+
+[tasks.build]
+description = "Build Rust application"
+run = "cargo build"
+dir = "{{cwd}}"
+
+[tasks.test]
+description = "Run Rust tests"
+run = "cargo test"
+dir = "{{cwd}}"
+
+[tasks.run]
+description = "Run Rust application"
+run = "cargo run"
+dir = "{{cwd}}"
+
+[tasks.clean]
+description = "Clean Rust build artifacts"
+run = "cargo clean"
+dir = "{{cwd}}"

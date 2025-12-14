@@ -1,0 +1,158 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Test All SDKs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+          components: rustfmt, clippy
+
+      - name: Install C++ dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake build-essential
+
+      - name: Install Task
+        run: |
+          sh -c "$(curl -L https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
+          task --version
+
+      - name: Run CI Pipeline
+        run: task ci
+
+  build:
+    name: Build ${{ matrix.sdk }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        sdk: [sdk/go, sdk/rust, sdk/cpp]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        if: matrix.sdk == 'sdk/go'
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+
+      - name: Set up Rust
+        if: matrix.sdk == 'sdk/rust'
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+
+      - name: Install C++ dependencies
+        if: matrix.sdk == 'sdk/cpp'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake build-essential
+
+      - name: Install Task
+        run: |
+          sh -c "$(curl -L https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
+
+      - name: Install dependencies
+        run: task install SDK=${{ matrix.sdk }}
+
+      - name: Lint
+        run: task lint SDK=${{ matrix.sdk }}
+        continue-on-error: true
+
+      - name: Test
+        run: task test SDK=${{ matrix.sdk }}
+
+      - name: Build
+        run: task build SDK=${{ matrix.sdk }}
+
+      - name: Run
+        run: task run SDK=${{ matrix.sdk }} CLI_ARGS="test"
+
+  lint:
+    name: Lint All SDKs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          components: rustfmt, clippy
+
+      - name: Install Task
+        run: |
+          sh -c "$(curl -L https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
+
+      - name: Lint all SDKs
+        run: task lint-all
+        continue-on-error: true
+
+  format-check:
+    name: Format Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          components: rustfmt
+
+      - name: Install Task
+        run: |
+          sh -c "$(curl -L https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
+
+      - name: Check Go formatting
+        run: |
+          cd sdk/go
+          if [ "$(gofmt -l . | wc -l)" -gt 0 ]; then
+            echo "Go files are not formatted:"
+            gofmt -l .
+            exit 1
+          fi
+
+      - name: Check Rust formatting
+        run: task rust:format-check
+
+      - name: Check C++ formatting
+        run: task cpp:format-check
+        continue-on-error: true

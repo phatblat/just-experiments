@@ -1,0 +1,42 @@
+# Rust SDK justfile
+# This file contains all commands specific to the Rust SDK
+
+# Install Rust dependencies
+install:
+    @echo "Installing Rust dependencies..."
+    cargo fetch
+
+# Update Rust dependencies
+update:
+    @echo "Updating Rust dependencies..."
+    cargo update
+
+# Lint Rust code
+lint:
+    @echo "Linting Rust code..."
+    cargo clippy -- -D warnings
+
+# Format Rust code
+format:
+    @echo "Formatting Rust code..."
+    cargo fmt
+
+# Build Rust binary
+build:
+    @echo "Building Rust binary..."
+    cargo build --release
+
+# Run Rust tests
+test:
+    @echo "Running Rust tests..."
+    cargo test
+
+# Run the Rust application
+run *ARGS:
+    @echo "Running Rust application..."
+    cargo run -- {{ARGS}}
+
+# Clean build artifacts
+clean:
+    @echo "Cleaning Rust build artifacts..."
+    cargo clean

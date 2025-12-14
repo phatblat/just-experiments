@@ -19,7 +19,7 @@ set shell := ["bash", "-euo", "pipefail", "-c"]
 
 # project variables
 
-all-projects := `ls -d */`
+all-projects := `ls -d */ | sed 's|/$||'`
 
 # Default recipe, lists available recipes
 @_default:
@@ -65,7 +65,8 @@ _lint-one project:
 [no-exit-message]
 _lint-all:
     #!{{ bash }}
-    for project in {{ all-projects }}; do
+    projects=({{ all-projects }})
+    for project in "${projects[@]}"; do
         echo Linting $project
         just ${project}/lint
     done
@@ -102,7 +103,8 @@ _format-one project:
 [no-exit-message]
 _format-all:
     #!{{ bash }}
-    for project in {{ all-projects }}; do
+    projects=({{ all-projects }})
+    for project in "${projects[@]}"; do
         echo formating $project
         just ${project}/format
     done
@@ -131,7 +133,8 @@ _build-one project:
 [no-exit-message]
 _build-all:
     #!{{ bash }}
-    for project in {{ all-projects }}; do
+    projects=({{ all-projects }})
+    for project in "${projects[@]}"; do
         echo building $project
         just ${project}/build
     done

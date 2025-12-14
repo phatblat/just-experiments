@@ -1,11 +1,10 @@
 #!/usr/bin/env -S just --justfile
 # ^ A shebang isn't required, but allows a justfile to be executed
 #   like a script, with `./justfile test`, for example.
-# ---------------------------------------------------------------------------- #
-# just settings
-# https://just.systems/man/en/chapter_26.html#settings
 #
-# bash with options. Reuse in recipes with #!{{ bash }}
+# export - Export all variables as environment variables.
+
+set export := true
 
 bash := "/usr/bin/env bash -euo pipefail"
 
@@ -14,30 +13,48 @@ bash := "/usr/bin/env bash -euo pipefail"
 
 set shell := ["bash", "-euo", "pipefail", "-c"]
 
-# ---------------------------------------------------------------------------- #
+# unstable - Enable unstable features. Required for --fmt.
+
+# set unstable := true
+
 # project variables
 
 all-projects := `ls -d */`
 
-# ---------------------------------------------------------------------------- #
-
-default:
-    @just --choose
-
-# lists recipes
-list:
-    @just --list
+# Default recipe, lists available recipes
+@_default:
+    just --list
 
 # show var values
-vars:
-    @just --evaluate
+@vars:
+    just --evaluate
+
+# Lists installed tools managed by mise
+[group('info')]
+list:
+    mise list --local
+
+# Installs tools using mise
+[group('configuration')]
+install:
+    mise install
+
+# Lists available upgrades
+[group('info')]
+outdated:
+    mise outdated --bump
+
+# Upgrades tools using mise
+[group('configuration')]
+upgrade:
+    mise upgrade --bump
 
 # -----[ Lint ]-----------------------------------------------------------------
 
 # lint justfile
 [no-exit-message]
-_lint-just:
-    @just --unstable --fmt --check
+@_lint-just:
+    just --unstable --fmt --check
 
 # lint a single project
 [no-exit-message]
@@ -67,6 +84,10 @@ lint project='all':
 
 # -----[ Format ]---------------------------------------------------------------
 
+# Formats mise config
+_format-mise:
+    mise fmt
+
 # format justfile
 [no-exit-message]
 _format-just:
@@ -94,6 +115,8 @@ format project='all':
         just _format-all
     elif [[ {{ project }} == 'just' ]]; then
         just _format-just
+    elif [[ {{ project }} == 'mise' ]]; then
+        just _format-mise
     else
         just _format-one {{ project }}
     fi
@@ -121,3 +144,6 @@ build project='all':
     else
         just _build-one {{ project }}
     fi
+
+# [group('configuration')]
+# clean:

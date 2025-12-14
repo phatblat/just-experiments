@@ -4,8 +4,8 @@
 #
 
 [tools]
-just = "1.25.2"
-ktlint = "1.2.1"
+just = "1.45.0"
+ktlint = "1.8.0"
 
 [settings]
 experimental = true

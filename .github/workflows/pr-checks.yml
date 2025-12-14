@@ -36,6 +36,8 @@ jobs:
           echo 'eval "$(mise hook-env --shell=bash)"' >> ~/.bashrc
       - uses: actions/checkout@v4
       - name: 📲 Install `just`
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           which mise
           mise settings set experimental true
